@@ -98,8 +98,11 @@ namespace TiaMcpServer.Siemens
             Exception ex,
             (string Key, object? Value)[] context)
         {
+            // docs/error-model.md: failures carry a concise reason from the inner exception. Without
+            // it the caller only saw "<operation> failed" while Openness had said exactly why,
+            // e.g. "This function is not supported in online mode."
             var pex = ex as PortalException
-                      ?? new PortalException(failCode, $"{operation} failed", null, ex);
+                      ?? new PortalException(failCode, $"{operation} failed: {ImportErrors.Describe(ex)}", null, ex);
 
             // Inner frames win: an inner Run already recorded the most specific context.
             foreach (var (key, value) in context)

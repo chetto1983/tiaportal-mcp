@@ -8,8 +8,8 @@ namespace TiaMcpServer.Siemens
     ///
     /// TIA Portal names the exact problem in the exception (and often in an inner exception), for
     /// example which part of a network is out of order. The import tools used to swallow it and
-    /// only report "failed". Callers: ImportXmlBlock and ImportXmlType in Portal. Reads/writes
-    /// no data files.
+    /// only report "failed". Callers: ImportXmlBlock and ImportXmlType in Portal, and
+    /// Operation.Decorate for every other wrapped Openness failure. Reads/writes no data files.
     /// </summary>
     public static class ImportErrors
     {

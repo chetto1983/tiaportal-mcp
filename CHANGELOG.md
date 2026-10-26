@@ -84,6 +84,10 @@
 - __Device item names containing `/` could not be addressed__: the onboard I/O of an S7-1200 G2 is named
   `DI 14/DQ 10_1`, and every path was split on `/`, so `.../G2_PLC_1/DI 14/DQ 10_1` was "not found". At each
   level the resolver now also tries two or more segments joined with `/` as one item name.
+- __Openness failures reported only "<operation> failed"__: `Operation.Run` wrapped every unexpected exception
+  without its message, although `docs/error-model.md` asks for a concise reason. Tools such as
+  `CreateExternalSourceFromFile` and `ImportExternalSource` now append the Openness text (via
+  `ImportErrors.Describe`), e.g. "This function is not supported in online mode." or "Unexpected file end.".
 - __Block and type names with characters that are invalid in a file name__: TIA Portal allows names such as
   `T_Data->HMI` or `GTS_EQ_I/FLower`, but the exports used the name as the file name. On .NET Framework a `>`,
   `<`, `|` or `"` made `Path.Combine` throw, and in `ExportXmlBlocks` / `ExportXmlTypes` that happened before the
