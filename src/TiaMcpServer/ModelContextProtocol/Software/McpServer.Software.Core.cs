@@ -108,24 +108,25 @@ namespace TiaMcpServer.ModelContextProtocol
             var state = result.State.ToString();
             var failed = result.State == CompilerResultState.Error;
 
+            // As the tool descriptions promise, a failed compile still returns every message (with
+            // meta.success false) instead of an exception that kept only five lines. The summary
+            // names the first errors that carry a description: the container nodes above them
+            // ('G2_PLC_1', 'Program blocks', a group) are in the Error state too but say nothing.
+            var summary = $"Compiling '{target}' finished with state '{state}': " +
+                          $"{result.ErrorCount} error(s), {result.WarningCount} warning(s)";
             if (failed)
             {
-                // The message text is what a client surfaces, so name the first few offenders
-                // rather than making the caller re-query to find out what broke.
                 var offenders = messages
-                    .Where(m => string.Equals(m.State, nameof(CompilerResultState.Error), StringComparison.OrdinalIgnoreCase))
+                    .Where(m => string.Equals(m.State, nameof(CompilerResultState.Error), StringComparison.OrdinalIgnoreCase)
+                                && !string.IsNullOrWhiteSpace(m.Description))
                     .Take(5)
                     .Select(m => $"{m.Path}: {m.Description}");
-
-                throw new McpException(
-                    $"Compiling '{target}' failed with {result.ErrorCount} error(s). " +
-                    string.Join(" | ", offenders));
+                summary += ". First errors: " + string.Join(" | ", offenders);
             }
 
             return new ResponseCompile
             {
-                Message = $"Compiling '{target}' finished with state '{state}': " +
-                          $"{result.ErrorCount} error(s), {result.WarningCount} warning(s)",
+                Message = summary,
                 State = state,
                 ErrorCount = result.ErrorCount,
                 WarningCount = result.WarningCount,
@@ -133,7 +134,7 @@ namespace TiaMcpServer.ModelContextProtocol
                 Meta = new JsonObject
                 {
                     ["timestamp"] = DateTime.Now,
-                    ["success"] = true,
+                    ["success"] = !failed,
                     ["state"] = state,
                     ["errorCount"] = result.ErrorCount,
                     ["warningCount"] = result.WarningCount,

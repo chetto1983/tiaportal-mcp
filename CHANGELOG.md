@@ -96,6 +96,11 @@
   setup called only `Openness.Initialize`, while `Program.Main` also registers the fallback resolver
   `Engineering.Resolver`. `Engineering.RegisterResolver()` now registers it once and both use it. The build
   warnings (two nullable warnings in the server, one in the tests) are fixed as well.
+- __`CompilePlcSoftware` / `CompileCodeBlock` still threw on compile errors__: the entry under "Changed" promised
+  the full result, but `BuildCompileResponse` threw an exception with five lines, and those were often the
+  container nodes (`G2_PLC_1`, `Program blocks`, a group) that are in the Error state without a description.
+  A failed compile now returns every message with `meta.success = false`, and the summary names the first
+  errors that carry a description.
 - __Block and type names with characters that are invalid in a file name__: TIA Portal allows names such as
   `T_Data->HMI` or `GTS_EQ_I/FLower`, but the exports used the name as the file name. On .NET Framework a `>`,
   `<`, `|` or `"` made `Path.Combine` throw, and in `ExportXmlBlocks` / `ExportXmlTypes` that happened before the
