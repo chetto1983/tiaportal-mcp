@@ -15,6 +15,23 @@ namespace TiaMcpServer.Siemens
         // Registry sub keys below 'TIAP{version}' that hold the installation path, most specific first.
         private static readonly string[] PreferredInstallPathSubKeys = { "TIA_Opns", "Global", "EditionMain" };
 
+        private static bool _resolverRegistered;
+
+        /// <summary>
+        /// Registers <see cref="Resolver"/> once per process as the fallback behind the Siemens
+        /// resolver, which does not cover every Siemens.Engineering.* satellite assembly (without it
+        /// Siemens.Engineering.Step7 is not found). Callers: Program.Main and the test assembly setup,
+        /// so both load Openness the same way.
+        /// </summary>
+        public static void RegisterResolver()
+        {
+            if (!_resolverRegistered)
+            {
+                AppDomain.CurrentDomain.AssemblyResolve += Resolver;
+                _resolverRegistered = true;
+            }
+        }
+
         public static Assembly? Resolver(object sender, ResolveEventArgs args)
         {
             // An exception escaping an AssemblyResolve handler surfaces at the load site and can take

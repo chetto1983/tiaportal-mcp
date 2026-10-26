@@ -1,4 +1,4 @@
-﻿using System;
+﻿using TiaMcpServer.Siemens;
 
 namespace TiaMcpServer.Test
 {
@@ -8,15 +8,16 @@ namespace TiaMcpServer.Test
         [AssemblyInitialize]
         public static void AssemblyInit(TestContext context)
         {
-            // Runs once before any tests in the assembly  
-            // context.WriteLine("Assembly initialization started");
+            // Load Openness the way Program.Main does: the test classes call Openness.Initialize, but
+            // without the fallback resolver Siemens.Engineering.Step7 is not found and every test that
+            // reflects over the tool attributes fails with FileNotFoundException.
+            Engineering.TiaMajorVersion = Settings.TiaMajorVersion;
+            Engineering.RegisterResolver();
         }
 
         [AssemblyCleanup]
         public static void AssemblyCleanup()
         {
-            // Runs once after all tests in the assembly  
-            // Console.WriteLine("Assembly cleanup completed");
         }
     }
 }

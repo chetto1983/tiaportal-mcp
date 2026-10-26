@@ -169,9 +169,9 @@ namespace TiaMcpServer.Siemens
             {
                 foreach (var message in result.Messages)
                 {
-                    if (!string.IsNullOrEmpty(message?.Message))
+                    if (message?.Message is string text && text.Length > 0)
                     {
-                        messages.Add(message.Message);
+                        messages.Add(text);
                     }
                 }
             }

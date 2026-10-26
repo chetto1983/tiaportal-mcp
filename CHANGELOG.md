@@ -92,6 +92,10 @@
   `CTRL_HSC_EXT` report `IsKnowHowProtected = true`, so they could not be deleted. Protection forbids editing
   the content, not deleting the block, and Openness deletes them without error (measured on V21). Rename and
   move/copy keep the guard.
+- __13 offline tests failed with `FileNotFoundException` for `Siemens.Engineering.Step7`__: the test assembly
+  setup called only `Openness.Initialize`, while `Program.Main` also registers the fallback resolver
+  `Engineering.Resolver`. `Engineering.RegisterResolver()` now registers it once and both use it. The build
+  warnings (two nullable warnings in the server, one in the tests) are fixed as well.
 - __Block and type names with characters that are invalid in a file name__: TIA Portal allows names such as
   `T_Data->HMI` or `GTS_EQ_I/FLower`, but the exports used the name as the file name. On .NET Framework a `>`,
   `<`, `|` or `"` made `Path.Combine` throw, and in `ExportXmlBlocks` / `ExportXmlTypes` that happened before the

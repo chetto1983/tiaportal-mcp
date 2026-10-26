@@ -16,8 +16,9 @@ namespace TiaMcpServer.ModelContextProtocol
         // MCP prompt arguments are always strings, so boolean flags arrive as text.
         private static string NormalizeBool(string? value)
         {
+            // An explicit null check: on net48 string.IsNullOrEmpty has no [NotNullWhen] annotation
             var text = value?.Trim();
-            if (string.IsNullOrEmpty(text))
+            if (text is null || text.Length == 0)
             {
                 return "false";
             }

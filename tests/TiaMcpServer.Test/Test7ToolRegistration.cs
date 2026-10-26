@@ -385,7 +385,7 @@ namespace TiaMcpServer.Test
 
             // Act
             var reader = tools.SingleOrDefault(t => t.Name == name);
-            var parameters = reader.Method?.GetParameters().Select(p => p.Name).ToList() ?? new List<string?>();
+            var parameters = reader.Method?.GetParameters().Select(p => p.Name).ToList() ?? new List<string>();
             var attribute = reader.Method?.GetCustomAttribute<global::ModelContextProtocol.Server.McpServerToolAttribute>();
 
             // Assert

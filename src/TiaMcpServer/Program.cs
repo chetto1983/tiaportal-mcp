@@ -34,8 +34,7 @@ namespace TiaMcpServer
                 Openness.Initialize(Engineering.TiaMajorVersion);
             }
 
-            // Fallback: the Siemens resolver does not cover every Siemens.Engineering.* satellite assembly.
-            AppDomain.CurrentDomain.AssemblyResolve += Engineering.Resolver;
+            Engineering.RegisterResolver();
 
             // '--doctor' only reports the environment - it must run before the user group gate below,
             // because a missing group membership is one of the things it is meant to diagnose.
