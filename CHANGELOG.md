@@ -88,6 +88,10 @@
   without its message, although `docs/error-model.md` asks for a concise reason. Tools such as
   `CreateExternalSourceFromFile` and `ImportExternalSource` now append the Openness text (via
   `ImportErrors.Describe`), e.g. "This function is not supported in online mode." or "Unexpected file end.".
+- __`DeleteBlock` refused know-how protected blocks__: instance DBs of system instructions such as
+  `CTRL_HSC_EXT` report `IsKnowHowProtected = true`, so they could not be deleted. Protection forbids editing
+  the content, not deleting the block, and Openness deletes them without error (measured on V21). Rename and
+  move/copy keep the guard.
 - __Block and type names with characters that are invalid in a file name__: TIA Portal allows names such as
   `T_Data->HMI` or `GTS_EQ_I/FLower`, but the exports used the name as the file name. On .NET Framework a `>`,
   `<`, `|` or `"` made `Path.Combine` throw, and in `ExportXmlBlocks` / `ExportXmlTypes` that happened before the

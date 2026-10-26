@@ -567,7 +567,9 @@ namespace TiaMcpServer.Siemens
                         ?? throw new PortalException(PortalErrorCode.NotFound,
                             $"Block not found at '{blockPath}'. Use 'GetBlocks' to list the available blocks.");
 
-                    EnsureNotKnowHowProtected(block);
+                    // No know-how guard here: protection blocks editing the content, not deleting the
+                    // block. Instance DBs of system instructions (e.g. CTRL_HSC_EXT) report
+                    // IsKnowHowProtected = true and Openness deletes them without error (measured on V21).
                     block.Delete();
 
                     return true;
