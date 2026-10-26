@@ -97,7 +97,7 @@ Read-only tools (71) are always available.
 | Type documents (V21+)         | `ExportTypeAsDocuments`, `ExportTypesAsDocuments`                                                                                                  |
 | Understand and read (comfort) | `GetPlcSummary`, `ResolveObjectPath`, `WhereUsed`, `FindInCode`, `GetBlockInterface`, `PreviewImport`, `OpenTiaProject`, `ExportPlcAsDocuments`    |
 
-Write tools (50) require `--allow-write`.
+Write tools (52) require `--allow-write`.
 
 | Area                  | Tools                                                                                                                                                                                                                                         |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -111,6 +111,7 @@ Write tools (50) require `--allow-write`.
 | Type documents (V21+) | `ImportTypeFromDocuments`, `ImportTypesFromDocuments`                                                                                                                                                                                         |
 | XML and documents     | `ImportXmlBlock`, `ImportXmlType`, `ImportFromDocuments` (V20+), `ImportBlocksFromDocuments` (V20+) |
 | Multiuser             | `CommitChanges` (commits the local session to the server and closes the session)                                                                                                                                                              |
+| Hardware and blocks   | `SetDeviceItemAttribute`, `SetBlockAttribute` (one writable attribute, value given as text and read back)                                                                                                                       |
 | Download              | `DownloadToDevice` (to a PLC or PLCSIM; stopping the CPU, reinitializing data and accepting a different configuration each need their own flag)                                                                                         |
 
 `GetSoftwareTree` accepts a `sections` argument - any comma separated subset of

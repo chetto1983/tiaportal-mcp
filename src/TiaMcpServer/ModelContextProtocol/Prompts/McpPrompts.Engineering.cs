@@ -5,7 +5,7 @@ namespace TiaMcpServer.ModelContextProtocol
 {
     public static partial class McpPrompts
     {
-        #region Online and download
+        #region Online, download and attributes
 
         [McpServerPrompt(Name = "GetOnlineState"), Description("Show the online state and connections of a PLC")]
         public static string GetOnlineState(string softwarePath)
@@ -69,6 +69,40 @@ Use the DownloadToDevice tool with these parameters:
 - allowStop: {NormalizeBool(allowStop)}
 - reinitialize: {NormalizeBool(reinitialize)}
 - acceptDifferentConfiguration: {NormalizeBool(acceptDifferentConfiguration)}";
+        }
+
+        [McpServerPrompt(Name = "SetDeviceItemAttribute"), Description("Set one hardware parameter of a device item")]
+        public static string SetDeviceItemAttribute(string deviceItemPath, string attributeName, string value)
+        {
+            return $@"Set one writable hardware parameter of a device item (requires the server started with '--allow-write'). Some attributes appear only after another one is set: re-read the item with 'GetDeviceItemInfo'.
+
+Common parameter values:
+- deviceItemPath: defines the path in the project structure to the device item
+- attributeName: attribute name as listed by 'GetDeviceItemInfo' (case-sensitive)
+- value: new value as text; enums take a name or a number, booleans true/false
+
+Use the SetDeviceItemAttribute tool with these parameters:
+- deviceItemPath: {deviceItemPath}
+- attributeName: {attributeName}
+- value: {value}";
+        }
+
+        [McpServerPrompt(Name = "SetBlockAttribute"), Description("Set one attribute of a block, e.g. an OB cycle time")]
+        public static string SetBlockAttribute(string softwarePath, string blockPath, string attributeName, string value)
+        {
+            return $@"Set one writable attribute of a block, e.g. 'CyclicTime' (microseconds) of a cyclic interrupt OB (requires the server started with '--allow-write').
+
+Common parameter values:
+- softwarePath: defines the path in the project structure to the PLC software
+- blockPath: root-relative path of the block
+- attributeName: attribute name as listed by 'GetBlockInfo' (case-sensitive)
+- value: new value as text
+
+Use the SetBlockAttribute tool with these parameters:
+- softwarePath: {softwarePath}
+- blockPath: {blockPath}
+- attributeName: {attributeName}
+- value: {value}";
         }
 
         #endregion
