@@ -16,6 +16,7 @@ A MCP server which connects to Siemens TIA Portal.
 - Perform basic project operations from within VS Code
 - Read the full PLC software: program blocks, PLC data types, tags and constants, watch and
   force tables, external source files, and cross references
+- Search and read the installed TIA Portal help (F1 help) through the local TIA Help Viewer
 - Optionally create, rename, delete, move and import project objects (see [Write mode](#write-mode))
 
 ## Command Line Arguments
@@ -26,6 +27,7 @@ A MCP server which connects to Siemens TIA Portal.
 | `--project-path <file>`   | Preset for the `path` argument of `OpenProject` / `OpenTiaProject`. See below.        |
 | `--software-path <path>`  | Preset for the `softwarePath` tool argument, e.g. `PLC_1`. See below.                 |
 | `--export-path <path>`    | Preset for the `exportPath` tool argument. See below.                                 |
+| `--help-url <url>`        | TIA Help Viewer for the help tools. Default `https://localhost:5112/PortalV<version>`. |
 | `--logging <1\|2\|3>`     | `1` stderr, `2` debug output, `3` Windows event log. Omit for no logging.             |
 | `--doctor`                | Print the environment report and exit without starting the MCP server.                |
 | `--preserve-path`         | Flag: `preservePath` defaults to `true` for the export tools. See below.              |
@@ -75,7 +77,7 @@ To enable write mode, add the argument to your client configuration, for example
 
 ## Tools
 
-Read-only tools (71) are always available.
+Read-only tools (74) are always available.
 
 | Area                          | Tools                                                                                                                                              |
 | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -83,6 +85,7 @@ Read-only tools (71) are always available.
 | Project and session           | `GetProject`, `OpenProject`, `SaveProject`, `SaveAsProject`, `CloseProject`                                                                        |
 | Devices                       | `GetProjectTree`, `GetDevices`, `GetDeviceInfo`, `GetDeviceItemInfo`                                                                               |
 | PLC software                  | `GetSoftwareInfo`, `GetSoftwareTree`, `CompilePlcSoftware`, `CompileCodeBlock`, `ExportOpcUaXml`                                                   |
+| TIA Portal help               | `SearchHelp`, `GetHelpTopic`, `GetHelpFilters` (need only the TIA Help Viewer service, not TIA Portal)                            |
 | Online                        | `GetOnlineState`, `GoOnline`, `GoOffline` (they change the connection, not the project)                                                       |
 | Blocks                        | `GetBlocks`, `GetBlockInfo`, `GetBlocksWithHierarchy`, `ExportXmlBlock`, `ExportXmlBlocks`                                       |
 | Types                         | `GetTypes`, `GetTypeInfo`, `ExportXmlType`, `ExportXmlTypes`                                                                      |

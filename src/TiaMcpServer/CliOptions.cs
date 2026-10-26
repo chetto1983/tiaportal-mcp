@@ -13,6 +13,7 @@ namespace TiaMcpServer
         public string? ExportPath { get; set; } // preset for the 'exportPath' tool argument
         public bool PreservePath { get; set; } // preset for the 'preservePath' tool argument (only when true)
         public bool WithDependencies { get; set; } // preset for the 'withDependencies' tool argument (only when true)
+        public string? HelpUrl { get; set; } // base URL of the TIA Help Viewer service for the help tools
 
         /// <summary>The options this process was started with; set by Program.Main so the Doctor tool can report them.</summary>
         public static CliOptions Current { get; set; } = new CliOptions();
@@ -77,6 +78,14 @@ namespace TiaMcpServer
                         options.WithDependencies = ReadFlag(args, ref i);
                         break;
 
+                    case "-help-url":
+                    case "--help-url":
+                        if (i + 1 < args.Length && !string.IsNullOrWhiteSpace(args[i + 1]))
+                        {
+                            options.HelpUrl = args[++i];
+                        }
+                        break;
+
                     case "-logging":
                     case "--logging":
                         if (i + 1 < args.Length && int.TryParse(args[i + 1], out int l))
@@ -104,6 +113,7 @@ namespace TiaMcpServer
                 new("--project-path", ProjectPath ?? notSet),
                 new("--software-path", SoftwarePath ?? notSet),
                 new("--export-path", ExportPath ?? notSet),
+                new("--help-url", HelpUrl ?? notSet),
                 new("--logging", Logging?.ToString() ?? notSet),
                 new("--doctor", Doctor ? "true" : "false"),
                 new("--allow-write", AllowWrite ? "true" : "false"),

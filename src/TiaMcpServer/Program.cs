@@ -21,6 +21,7 @@ namespace TiaMcpServer
             CliOptions.Current = options;
 
             Engineering.TiaMajorVersion = options.TiaMajorVersion ?? 21;
+            HelpViewer.BaseUrl = options.HelpUrl;
 
             // Set before the --doctor branch below, which reports the write mode, and before the
             // host registers its tool types.

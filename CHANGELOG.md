@@ -4,6 +4,16 @@
 
 ### Added
 
+- __`SearchHelp`, `GetHelpTopic`, `GetHelpFilters`__: the installed TIA Portal help (the F1 help), read through
+  the local TIA Help Viewer service. `SearchHelp` returns title, `topicId` and manual of each match, optionally
+  restricted to a device family (`S7-1200`, ...; `GetHelpFilters` lists them). `GetHelpTopic` returns a topic
+  as plain text (tables one row per line) with its manual, device family, parent topic and the topics it links
+  to. They need neither TIA Portal nor a project. The service is undocumented: the requests follow the viewer's
+  own web client. It answers only over HTTP/2, which needs the new dependency `System.Net.Http.WinHttpHandler`
+  on .NET Framework. Its documentation scope filter returned no results for every value, so it is not offered.
+  New command line argument `--help-url` (default `https://localhost:5112/PortalV<version>`); a certificate
+  error is accepted only for a local service. Measured on V21, including the S7-1200 G2 topics.
+
 - __`GetOnlineState`, `GoOnline`, `GoOffline`__: the PLC's `OnlineProvider`. `GetOnlineState` reports the state,
   whether a connection is configured, and every connection the PLC offers (mode, PG/PC interface and number,
   target interface). `GoOnline` takes one of them, or uses the configured one when `mode` is empty. A wrong
