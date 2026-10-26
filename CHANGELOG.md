@@ -81,6 +81,9 @@
   ignored the remaining segments, so `S7-1200 G2 station_1/G2_PLC_1/HSC_1` returned `G2_PLC_1`, and an item
   that does not exist under the CPU did too. Each further segment now descends into `DeviceItems`
   (`.../PROFINET interface_1/Port_2` works), and a segment that does not match yields "Device item not found".
+- __Device item names containing `/` could not be addressed__: the onboard I/O of an S7-1200 G2 is named
+  `DI 14/DQ 10_1`, and every path was split on `/`, so `.../G2_PLC_1/DI 14/DQ 10_1` was "not found". At each
+  level the resolver now also tries two or more segments joined with `/` as one item name.
 - __Block and type names with characters that are invalid in a file name__: TIA Portal allows names such as
   `T_Data->HMI` or `GTS_EQ_I/FLower`, but the exports used the name as the file name. On .NET Framework a `>`,
   `<`, `|` or `"` made `Path.Combine` throw, and in `ExportXmlBlocks` / `ExportXmlTypes` that happened before the

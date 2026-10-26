@@ -180,12 +180,7 @@ namespace TiaMcpServer.Siemens
                 }
 
                 var itemSegments = path.Substring(start + prefix.Length).Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                if (itemSegments.Length == 0)
-                {
-                    continue;
-                }
-
-                var deviceItem = GetNestedDeviceItem(FindDeviceItemByName(device.DeviceItems, itemSegments[0]), itemSegments, 1);
+                var deviceItem = ResolveItemPath(device.DeviceItems, itemSegments, 0);
                 if (deviceItem != null)
                 {
                     return deviceItem;
@@ -246,43 +241,51 @@ namespace TiaMcpServer.Siemens
         private static DeviceItem? GetDeviceItemFromDevice(string[] pathSegments, DeviceComposition? devices, int index)
         {
             string segment = pathSegments[index];
-            string nextSegment = index + 1 < pathSegments.Length ? pathSegments[index + 1] : string.Empty;
 
             // a pc based plc has a Device.Name = 'PC-System_1' or something like that, which is visible in the TIA-Portal IDE
             // use segment to find device
             var device = devices.FirstOrDefault(d => d.Name.Equals(segment, StringComparison.OrdinalIgnoreCase));
             if (device != null)
             {
-                // then use next segment to find device item
-                var deviceItem = FindDeviceItemByName(device.DeviceItems, nextSegment);
-                return GetNestedDeviceItem(deviceItem, pathSegments, index + 2);
+                // then the following segments name the device item and any nested items
+                return ResolveItemPath(device.DeviceItems, pathSegments, index + 1);
             }
 
             // a hardware plc has a Device.Name = 'S7-1500/ET200MP-Station_1' or something like that, which is not visible in the TIA-Portal IDE
-            var topLevelItem = devices
-                .SelectMany(d => d.DeviceItems)
-                .FirstOrDefault(di => di.Name.Equals(segment, StringComparison.OrdinalIgnoreCase));
-            return GetNestedDeviceItem(topLevelItem, pathSegments, index + 1);
+            return ResolveItemPath(devices.SelectMany(d => d.DeviceItems), pathSegments, index);
         }
 
         /// <summary>
-        /// Follows the remaining path segments down the DeviceItems of each level, so that items below
-        /// a CPU (e.g. 'S7-1200 G2 station_1/G2_PLC_1/HSC_1') resolve to the item named by the last
-        /// segment. Returns null when any segment does not match, instead of the parent.
+        /// Resolves the segments from <paramref name="start"/> down the DeviceItems of each level, so
+        /// that items below a CPU ('S7-1200 G2 station_1/G2_PLC_1/HSC_1') resolve to the item named
+        /// by the last segment, and null is returned when a segment does not match, never the parent.
+        /// An item name may itself contain '/' (the onboard 'DI 14/DQ 10_1' of an S7-1200 G2), so at
+        /// each level one, two, ... segments joined with '/' are tried as the name.
         /// </summary>
-        private static DeviceItem? GetNestedDeviceItem(DeviceItem? deviceItem, string[] pathSegments, int start)
+        private static DeviceItem? ResolveItemPath(IEnumerable<DeviceItem> candidates, string[] pathSegments, int start)
         {
-            for (int index = start; deviceItem != null && index < pathSegments.Length; index++)
+            for (int count = 1; start + count <= pathSegments.Length; count++)
             {
-                deviceItem = FindDeviceItemByName(deviceItem.DeviceItems, pathSegments[index]);
+                var name = string.Join("/", pathSegments, start, count);
+                var deviceItem = candidates.FirstOrDefault(di => di.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                if (deviceItem == null)
+                {
+                    continue;
+                }
+
+                if (start + count == pathSegments.Length)
+                {
+                    return deviceItem;
+                }
+
+                var nested = ResolveItemPath(deviceItem.DeviceItems, pathSegments, start + count);
+                if (nested != null)
+                {
+                    return nested;
+                }
             }
 
-            return deviceItem;
-        }
-
-        private static DeviceItem? FindDeviceItemByName(DeviceItemComposition deviceItems, string name)
-        {
-            return deviceItems.FirstOrDefault(di => di.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            return null;
         }
 
         #endregion
