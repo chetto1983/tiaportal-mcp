@@ -274,7 +274,9 @@ These are not gaps in this server - the underlying API offers no operation for t
   password. The server does not pre-guess Siemens' rules: the underlying error is passed through
   with its original message.
 - __Know-how protected__ blocks and types are rejected before any edit, with a message asking you
-  to remove the protection in TIA Portal first.
+  to remove the protection in TIA Portal first. Deleting is the exception: protection forbids editing
+  the content, not removing the block, so `DeleteBlock` accepts them (for example the instance DB of
+  `CTRL_HSC_EXT`).
 
 ## Testing
 
