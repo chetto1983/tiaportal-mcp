@@ -29,6 +29,11 @@
   name or number, booleans `true`/`false`, numbers in invariant culture); the value read back is returned.
   An unknown name, a read-only attribute and a value of the wrong type each get their own message.
   `SetBlockAttribute` refuses know-how protected blocks. Measured on V21 with an S7-1200 G2.
+- __`CreateOB`__ (write tool): creates an empty SCL organization block with a given name, number and
+  `secondaryType` (`ProgramCycle`, `CyclicInterrupt`, `HardwareInterrupt`, `Startup`, ...) in a block group.
+  An OB generated from an SCL source always becomes a program cycle OB, so the tool imports a minimal
+  SimaticML file instead; `ImportExternalSource` then fills the body and keeps type and number. Measured on V21:
+  a cyclic interrupt OB was created, and a duplicate name is refused.
 
 - __`ExportOpcUaXml`__: exports the OPC UA data of one PLC as `<exportPath>/<softwarePath>/OPC UA/<PLC name>.xml`
   (`OpcUaExportProvider.Export`, found through `Project.HwUtilities`). Read-only with respect to the project, so

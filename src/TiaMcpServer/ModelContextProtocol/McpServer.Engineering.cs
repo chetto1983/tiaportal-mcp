@@ -5,11 +5,11 @@ namespace TiaMcpServer.ModelContextProtocol
 {
     public static partial class McpServer
     {
-        // Attribute writes on hardware and blocks.
+        // Attribute writes on hardware and blocks, and typed OB creation.
         //
         // Callers: registered through Program.BuildTools() with '--allow-write' and invoked directly
-        // by the tests. Data: ResponseMessage (the value read back is in the message). The changes
-        // are in memory until SaveProject.
+        // by the tests. Data: ResponseMessage (the value read back is in the message) and
+        // ResponseCreated. The changes are in memory until SaveProject.
 
         [WriteTool]
         [McpServerTool(Name = "SetDeviceItemAttribute", Title = "Set device item attribute", Destructive = true, Idempotent = true, OpenWorld = false, UseStructuredContent = true),
@@ -39,6 +39,23 @@ namespace TiaMcpServer.ModelContextProtocol
             {
                 var readBack = Portal.SetBlockAttribute(softwarePath, blockPath, attributeName, value);
                 return new ResponseMessage { Message = $"'{blockPath}': {attributeName} = {readBack}. {SaveHint}", Meta = OkMeta() };
+            });
+        }
+
+        [WriteTool]
+        [McpServerTool(Name = "CreateOB", Title = "Create organization block", Destructive = true, OpenWorld = false, UseStructuredContent = true),
+         Description("Create an empty SCL organization block of a given type and number, e.g. a cyclic interrupt OB30. An OB generated from a source always becomes a program cycle OB; fill the body afterwards with 'ImportExternalSource', which keeps type and number")]
+        public static ResponseCreated CreateOB(
+            [Description("softwarePath: defines the path in the project structure to the PLC software")] string softwarePath,
+            [Description("name: name of the new OB, without a slash")] string name,
+            [Description("number: OB number, e.g. 30 for a cyclic interrupt, 40 for a hardware interrupt, 100 for startup")] int number,
+            [Description("secondaryType: OB type, e.g. ProgramCycle, CyclicInterrupt, HardwareInterrupt or Startup")] string secondaryType,
+            [Description("groupPath: root-relative block group that receives the OB; empty uses the Program blocks root")] string groupPath = "")
+        {
+            return Guarded(nameof(CreateOB), () =>
+            {
+                var block = Portal.CreateOB(softwarePath, groupPath, name, number, secondaryType);
+                return Created("OB", block.Name, JoinPath(groupPath, block.Name));
             });
         }
     }

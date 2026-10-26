@@ -5,7 +5,7 @@ namespace TiaMcpServer.ModelContextProtocol
 {
     public static partial class McpPrompts
     {
-        #region Online, download and attributes
+        #region Online, download, attributes and OBs
 
         [McpServerPrompt(Name = "GetOnlineState"), Description("Show the online state and connections of a PLC")]
         public static string GetOnlineState(string softwarePath)
@@ -103,6 +103,26 @@ Use the SetBlockAttribute tool with these parameters:
 - blockPath: {blockPath}
 - attributeName: {attributeName}
 - value: {value}";
+        }
+
+        [McpServerPrompt(Name = "CreateOB"), Description("Create an empty organization block of a given type")]
+        public static string CreateOB(string softwarePath, string name, string number, string secondaryType, string groupPath = "")
+        {
+            return $@"Create an empty SCL organization block of a given type and number (requires the server started with '--allow-write'). Fill its body afterwards with 'ImportExternalSource', which keeps type and number.
+
+Common parameter values:
+- softwarePath: defines the path in the project structure to the PLC software
+- name: name of the new OB, without a slash
+- number: OB number, e.g. 30, 40 or 100
+- secondaryType: ProgramCycle, CyclicInterrupt, HardwareInterrupt or Startup
+- groupPath: root-relative block group; empty uses the Program blocks root
+
+Use the CreateOB tool with these parameters:
+- softwarePath: {softwarePath}
+- name: {name}
+- number: {number}
+- secondaryType: {secondaryType}
+- groupPath: {groupPath}";
         }
 
         #endregion

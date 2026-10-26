@@ -97,12 +97,12 @@ Read-only tools (71) are always available.
 | Type documents (V21+)         | `ExportTypeAsDocuments`, `ExportTypesAsDocuments`                                                                                                  |
 | Understand and read (comfort) | `GetPlcSummary`, `ResolveObjectPath`, `WhereUsed`, `FindInCode`, `GetBlockInterface`, `PreviewImport`, `OpenTiaProject`, `ExportPlcAsDocuments`    |
 
-Write tools (52) require `--allow-write`.
+Write tools (53) require `--allow-write`.
 
 | Area                  | Tools                                                                                                                                                                                                                                         |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Block and type groups | `CreateBlockGroup`, `DeleteBlockGroup`, `CreateTypeGroup`, `DeleteTypeGroup`                                                                                                                                                                  |
-| Blocks and types      | `DeleteBlock`, `RenameBlock`, `DeleteType`, `RenameType`, `CreateFB`, `CreateInstanceDB`                                                                                                                                                      |
+| Blocks and types      | `DeleteBlock`, `RenameBlock`, `DeleteType`, `RenameType`, `CreateFB`, `CreateInstanceDB`, `CreateOB`                                                                                                                                          |
 | Copy and move         | `CopyBlock`, `MoveBlock`, `CopyType`, `MoveType`                                                                                                                                                                                              |
 | Tag tables            | `CreateTagTable`, `DeleteTagTable`, `RenameTagTable`, `CreateTagTableGroup`, `DeleteTagTableGroup`, `ImportXmlTagTable`                                                                                                                       |
 | Tags and constants    | `CreateTag`, `UpdateTag`, `DeleteTag`, `CreateUserConstant`, `UpdateUserConstant`, `DeleteUserConstant`                                                                                                                                       |
@@ -258,8 +258,9 @@ These are not gaps in this server - the underlying API offers no operation for t
   refuses to export an inconsistent one, and its block number travels with it, so importing
   into the same PLC can hit a number collision. Renaming during a copy is not offered - it
   would mean rewriting the exported XML.
-- __No generic "create block".__ Only `CreateFB` and `CreateInstanceDB` exist; every other kind
-  of block has to arrive through `ImportXmlBlock`.
+- __No generic "create block".__ Only `CreateFB`, `CreateInstanceDB` and `CreateOB` exist; every
+  other kind of block has to arrive through `ImportXmlBlock`. `CreateOB` itself imports a SimaticML
+  file, because an OB generated from an SCL source always becomes a program cycle OB.
 - __Read-only objects.__ System constants cannot be created or changed, the force table cannot
   be created or deleted (the system owns one per PLC), the default tag table cannot be deleted,
   and the system groups (`Program blocks`, `PLC data types`, `PLC tags`, ...) cannot be renamed
