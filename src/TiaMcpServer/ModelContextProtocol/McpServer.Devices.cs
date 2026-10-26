@@ -4,6 +4,7 @@ using Siemens.Engineering.SW.Blocks;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Text.Json.Nodes;
 using System.Xml.Linq;
 using TiaMcpServer.Siemens;
@@ -50,7 +51,7 @@ namespace TiaMcpServer.ModelContextProtocol
             }
         }
 
-        [McpServerTool(Name = "GetDeviceItemInfo", Title = "Get device item info", ReadOnly = true, OpenWorld = false, UseStructuredContent = true), Description("Show name, description and attributes of one device item in the current project or session")]
+        [McpServerTool(Name = "GetDeviceItemInfo", Title = "Get device item info", ReadOnly = true, OpenWorld = false, UseStructuredContent = true), Description("Show name, description, attributes, I/O addresses and channels of one device item in the current project or session")]
         public static ResponseDeviceItemInfo GetDeviceItemInfo(
             [Description("deviceItemPath: defines the path in the project structure to the device item")] string deviceItemPath)
         {
@@ -67,6 +68,12 @@ namespace TiaMcpServer.ModelContextProtocol
                         Message = $"Device item info retrieved from '{deviceItemPath}'",
                         Name = deviceItem.Name,
                         Attributes = attributes,
+                        Addresses = deviceItem.Addresses
+                            .Select(a => new ResponseAddress { IoType = a.IoType.ToString(), StartAddress = a.StartAddress, Length = a.Length })
+                            .ToList(),
+                        Channels = deviceItem.Channels
+                            .Select(c => new ResponseChannel { IoType = c.IoType.ToString(), Type = c.Type.ToString(), Number = c.Number, Attributes = Helper.GetAttributeList(c) })
+                            .ToList(),
                         Description = deviceItem.ToString(),
                         Meta = new JsonObject
                         {

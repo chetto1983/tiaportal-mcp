@@ -19,6 +19,10 @@
   never chosen, and passwords are not handled. It does not run inside a TIA Portal transaction, because
   Openness cannot go online inside one. Measured on V21 against PLCSIM Advanced: changes only, and a full
   software load with STOP and restart.
+- __`GetDeviceItemInfo` reports I/O addresses and channels__: `Addresses` (`IoType`, `StartAddress`, `Length`
+  in bits) and `Channels` (`IoType`, `Type`, `Number`, attributes) from `DeviceItem.Addresses` / `Channels`.
+  On an S7-1200 G2, `HSC_1` shows its input area (I 992, 32 bits) and `DI 14/DQ 10_1` its I 0 / Q 0 areas
+  of 16 bits; Openness exposes no channels for either (measured on V21).
 
 - __`ExportOpcUaXml`__: exports the OPC UA data of one PLC as `<exportPath>/<softwarePath>/OPC UA/<PLC name>.xml`
   (`OpcUaExportProvider.Export`, found through `Project.HwUtilities`). Read-only with respect to the project, so
