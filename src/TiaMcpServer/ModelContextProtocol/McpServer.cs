@@ -765,7 +765,11 @@ namespace TiaMcpServer.ModelContextProtocol
                 ? "The change is in memory; call 'SaveSession' to persist it."
                 : "The change is in memory; call 'SaveProject' to persist it.";
 
-        private static T Guarded<T>(string toolName, Func<T> body)
+        /// <param name="useTransaction">
+        /// False for writes that act on a device rather than on the project (download): Openness
+        /// refuses to go online while a transaction is active (V21 manual, "Setting PLC Online").
+        /// </param>
+        private static T Guarded<T>(string toolName, Func<T> body, bool useTransaction = true)
         {
             WritePolicy.EnsureEnabled(toolName);
 
@@ -776,7 +780,7 @@ namespace TiaMcpServer.ModelContextProtocol
                 // an unlabelled pile of steps. Falls back to an unwrapped write when TIA Portal
                 // refuses exclusive access, so this can never turn a working write into a
                 // failure - see Portal.InTransaction in Portal.cs.
-                return Portal.InTransaction($"MCP: {toolName}", body);
+                return useTransaction ? Portal.InTransaction($"MCP: {toolName}", body) : body();
             }
             catch (PortalException pex)
             {

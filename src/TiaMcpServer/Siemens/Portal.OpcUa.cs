@@ -12,8 +12,8 @@ namespace TiaMcpServer.Siemens
         // Callers: the ExportOpcUaXml tool in McpServer.OpcUa.cs. Affected API:
         // OpcUaExportProvider.Export(DeviceItem, FileInfo), found through Project.HwUtilities.
         // Writes one .xml file below the path the caller supplies; it does not modify the project,
-        // so it is not gated behind '--allow-write'. TIA Portal requires the PLC to be offline,
-        // which this server always is.
+        // so it is not gated behind '--allow-write'. TIA Portal requires the PLC to be offline
+        // ('GoOffline').
 
         private const string OpcUaExportProviderId = "OPCUAExportProvider";
         private const string OpcUaExportFolder = "OPC UA";
@@ -27,11 +27,7 @@ namespace TiaMcpServer.Siemens
             return Operation.Run(_logger, nameof(ExportOpcUaXml), PortalErrorCode.ExportFailed,
                 () =>
                 {
-                    var plcSoftware = GetPlcSoftwareOrThrow(softwarePath);
-
-                    var plc = FindDeviceItem(GetSoftwareContainer(softwarePath), plcSoftware)
-                        ?? throw new PortalException(PortalErrorCode.NotFound,
-                            $"No PLC device item found for '{softwarePath}'. Use 'GetSoftwareTree' to list the PLC software.");
+                    var plc = GetPlcDeviceItemOrThrow(softwarePath);
 
                     var provider = _project!.HwUtilities.Find(OpcUaExportProviderId) as OpcUaExportProvider
                         ?? throw new PortalException(PortalErrorCode.NotSupported,

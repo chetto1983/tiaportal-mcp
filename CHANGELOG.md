@@ -4,6 +4,22 @@
 
 ### Added
 
+- __`GetOnlineState`, `GoOnline`, `GoOffline`__: the PLC's `OnlineProvider`. `GetOnlineState` reports the state,
+  whether a connection is configured, and every connection the PLC offers (mode, PG/PC interface and number,
+  target interface). `GoOnline` takes one of them, or uses the configured one when `mode` is empty. A wrong
+  connection is answered with the list of the valid ones. While online, Openness refuses to edit the project
+  ("not supported in online mode"), and `GoOffline` is the way out. They change the connection, not the
+  project, so they are not write tools. Measured on V21 against PLCSIM Advanced.
+- __`DownloadToDevice`__ (write tool): downloads `HardwareAndSoftware` (default), `Software`,
+  `SoftwareOnlyChanges` or `Hardware` to a PLC or a PLCSIM instance through `DownloadProvider.Download`.
+  Every load-preview question is answered conservatively and returned with its answer: the CPU is
+  stopped only with `allowStop` (otherwise the load stops before anything is written and the CPU keeps
+  running), data blocks are reinitialized only with `reinitialize` (otherwise actual values are kept), a
+  different target configuration is accepted only with `acceptDifferentConfiguration`, a module reset is
+  never chosen, and passwords are not handled. It does not run inside a TIA Portal transaction, because
+  Openness cannot go online inside one. Measured on V21 against PLCSIM Advanced: changes only, and a full
+  software load with STOP and restart.
+
 - __`ExportOpcUaXml`__: exports the OPC UA data of one PLC as `<exportPath>/<softwarePath>/OPC UA/<PLC name>.xml`
   (`OpcUaExportProvider.Export`, found through `Project.HwUtilities`). Read-only with respect to the project, so
   it is not gated behind `--allow-write`; it fails with `NotSupported` when TIA Portal does not offer the OPC UA

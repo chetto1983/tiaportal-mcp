@@ -75,7 +75,7 @@ To enable write mode, add the argument to your client configuration, for example
 
 ## Tools
 
-Read-only tools (66) are always available.
+Read-only tools (71) are always available.
 
 | Area                          | Tools                                                                                                                                              |
 | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -83,6 +83,7 @@ Read-only tools (66) are always available.
 | Project and session           | `GetProject`, `OpenProject`, `SaveProject`, `SaveAsProject`, `CloseProject`                                                                        |
 | Devices                       | `GetProjectTree`, `GetDevices`, `GetDeviceInfo`, `GetDeviceItemInfo`                                                                               |
 | PLC software                  | `GetSoftwareInfo`, `GetSoftwareTree`, `CompilePlcSoftware`, `CompileCodeBlock`, `ExportOpcUaXml`                                                   |
+| Online                        | `GetOnlineState`, `GoOnline`, `GoOffline` (they change the connection, not the project)                                                       |
 | Blocks                        | `GetBlocks`, `GetBlockInfo`, `GetBlocksWithHierarchy`, `ExportXmlBlock`, `ExportXmlBlocks`                                       |
 | Types                         | `GetTypes`, `GetTypeInfo`, `ExportXmlType`, `ExportXmlTypes`                                                                      |
 | Tags and constants            | `GetTagTables`, `GetTagTableInfo`, `GetTags`, `GetTagInfo`, `GetConstants`, `ExportXmlTagTable`                                                    |
@@ -96,7 +97,7 @@ Read-only tools (66) are always available.
 | Type documents (V21+)         | `ExportTypeAsDocuments`, `ExportTypesAsDocuments`                                                                                                  |
 | Understand and read (comfort) | `GetPlcSummary`, `ResolveObjectPath`, `WhereUsed`, `FindInCode`, `GetBlockInterface`, `PreviewImport`, `OpenTiaProject`, `ExportPlcAsDocuments`    |
 
-Write tools (49) require `--allow-write`.
+Write tools (50) require `--allow-write`.
 
 | Area                  | Tools                                                                                                                                                                                                                                         |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -110,6 +111,7 @@ Write tools (49) require `--allow-write`.
 | Type documents (V21+) | `ImportTypeFromDocuments`, `ImportTypesFromDocuments`                                                                                                                                                                                         |
 | XML and documents     | `ImportXmlBlock`, `ImportXmlType`, `ImportFromDocuments` (V20+), `ImportBlocksFromDocuments` (V20+) |
 | Multiuser             | `CommitChanges` (commits the local session to the server and closes the session)                                                                                                                                                              |
+| Download              | `DownloadToDevice` (to a PLC or PLCSIM; stopping the CPU, reinitializing data and accepting a different configuration each need their own flag)                                                                                         |
 
 `GetSoftwareTree` accepts a `sections` argument - any comma separated subset of
 `blocks,types,tags,watch,sources`, default `all` - to keep the output small on a large PLC.
