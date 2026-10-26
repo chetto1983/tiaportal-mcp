@@ -165,7 +165,8 @@ namespace TiaMcpServer.Siemens
         /// <summary>
         /// Handles paths like 'S7-1500/ET200MP station_1/PLC_1' or 'Group1/S7-1500/ET200MP station_1/PLC_1'
         /// where the device name itself contains '/': the device name is looked up as a whole
-        /// (at the start of the path or after a '/') and the rest of the path names the device item.
+        /// (at the start of the path or after a '/') and the rest of the path names the device item,
+        /// followed by any nested items below it.
         /// </summary>
         private DeviceItem? GetDeviceItemBySlashDeviceName(string path)
         {
@@ -178,8 +179,13 @@ namespace TiaMcpServer.Siemens
                     continue;
                 }
 
-                var itemName = path.Substring(start + prefix.Length);
-                var deviceItem = device.DeviceItems.FirstOrDefault(di => di.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
+                var itemSegments = path.Substring(start + prefix.Length).Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                if (itemSegments.Length == 0)
+                {
+                    continue;
+                }
+
+                var deviceItem = GetNestedDeviceItem(FindDeviceItemByName(device.DeviceItems, itemSegments[0]), itemSegments, 1);
                 if (deviceItem != null)
                 {
                     return deviceItem;
@@ -242,27 +248,41 @@ namespace TiaMcpServer.Siemens
             string segment = pathSegments[index];
             string nextSegment = index + 1 < pathSegments.Length ? pathSegments[index + 1] : string.Empty;
 
-            DeviceItem? deviceItem = null;
-
             // a pc based plc has a Device.Name = 'PC-System_1' or something like that, which is visible in the TIA-Portal IDE
             // use segment to find device
             var device = devices.FirstOrDefault(d => d.Name.Equals(segment, StringComparison.OrdinalIgnoreCase));
             if (device != null)
             {
                 // then use next segment to find device item
-                deviceItem = device.DeviceItems.FirstOrDefault(di => di.Name.Equals(nextSegment, StringComparison.OrdinalIgnoreCase));
-
+                var deviceItem = FindDeviceItemByName(device.DeviceItems, nextSegment);
+                return GetNestedDeviceItem(deviceItem, pathSegments, index + 2);
             }
 
             // a hardware plc has a Device.Name = 'S7-1500/ET200MP-Station_1' or something like that, which is not visible in the TIA-Portal IDE
-            if (device == null)
-            {
-                deviceItem = devices
+            var topLevelItem = devices
                 .SelectMany(d => d.DeviceItems)
                 .FirstOrDefault(di => di.Name.Equals(segment, StringComparison.OrdinalIgnoreCase));
+            return GetNestedDeviceItem(topLevelItem, pathSegments, index + 1);
+        }
+
+        /// <summary>
+        /// Follows the remaining path segments down the DeviceItems of each level, so that items below
+        /// a CPU (e.g. 'S7-1200 G2 station_1/G2_PLC_1/HSC_1') resolve to the item named by the last
+        /// segment. Returns null when any segment does not match, instead of the parent.
+        /// </summary>
+        private static DeviceItem? GetNestedDeviceItem(DeviceItem? deviceItem, string[] pathSegments, int start)
+        {
+            for (int index = start; deviceItem != null && index < pathSegments.Length; index++)
+            {
+                deviceItem = FindDeviceItemByName(deviceItem.DeviceItems, pathSegments[index]);
             }
 
             return deviceItem;
+        }
+
+        private static DeviceItem? FindDeviceItemByName(DeviceItemComposition deviceItems, string name)
+        {
+            return deviceItems.FirstOrDefault(di => di.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
         #endregion

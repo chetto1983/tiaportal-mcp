@@ -70,6 +70,17 @@
 
 ### Fixed
 
+- __`GetDevices`, `GetDeviceInfo` and `GetDeviceItemInfo` failed on real hardware__ with only "An error occurred
+  invoking ...". `Helper.GetAttributeList` passed raw attribute values into the response, and devices and device
+  items carry Openness objects (`Container`, `CommentML`, `PlcCommunicationCertificate`, `Items`) that the JSON
+  serialization of the result cannot handle. Values are now reduced to plain data: an Openness object becomes its
+  `Name` (or type name), a `MultilingualText` its first text, a collection a list. An attribute that throws on
+  read is reported as `<error: ...>` instead of failing the whole call. Measured on TIA Portal V21 with an
+  S7-1200 G2 (CPU 1214C DC/DC/DC, FW V4.1).
+- __Nested device item paths returned the parent__: `GetDeviceItem` resolved only one level below the device and
+  ignored the remaining segments, so `S7-1200 G2 station_1/G2_PLC_1/HSC_1` returned `G2_PLC_1`, and an item
+  that does not exist under the CPU did too. Each further segment now descends into `DeviceItems`
+  (`.../PROFINET interface_1/Port_2` works), and a segment that does not match yields "Device item not found".
 - __Block and type names with characters that are invalid in a file name__: TIA Portal allows names such as
   `T_Data->HMI` or `GTS_EQ_I/FLower`, but the exports used the name as the file name. On .NET Framework a `>`,
   `<`, `|` or `"` made `Path.Combine` throw, and in `ExportXmlBlocks` / `ExportXmlTypes` that happened before the

@@ -1,7 +1,9 @@
 ﻿using Siemens.Engineering;
 using Siemens.Engineering.SW.Blocks;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TiaMcpServer.ModelContextProtocol
 {
@@ -15,7 +17,17 @@ namespace TiaMcpServer.ModelContextProtocol
             {
                 foreach (var attr in obj.GetAttributeInfos())
                 {
-                    object value = obj.GetAttribute(attr.Name);
+                    object? value;
+                    try
+                    {
+                        value = ToSerializableValue(obj.GetAttribute(attr.Name));
+                    }
+                    catch (Exception ex)
+                    {
+                        // One unreadable attribute must not fail the whole tool call
+                        value = $"<error: {ex.Message}>";
+                    }
+
                     attributes.Add(new Attribute
                     {
                         Name = attr.Name,
@@ -26,6 +38,53 @@ namespace TiaMcpServer.ModelContextProtocol
             }
 
             return attributes;
+        }
+
+        /// <summary>
+        /// Attribute values of devices and device items include Openness objects (Container,
+        /// CommentML, certificates, Items). Passed through as-is they make the JSON serialization of
+        /// the response fail, so only plain values are kept and everything else is reduced to text.
+        /// </summary>
+        private static object? ToSerializableValue(object? value)
+        {
+            switch (value)
+            {
+                case null:
+                    return null;
+                case string _:
+                case bool _:
+                case Enum _:
+                case DateTime _:
+                case TimeSpan _:
+                case Guid _:
+                case decimal _:
+                    return value;
+                case MultilingualText text:
+                    return FirstText(text);
+                case IEngineeringObject engineeringObject:
+                    return GetNameOrTypeName(engineeringObject);
+                case IEnumerable items:
+                    return items.Cast<object?>().Select(ToSerializableValue).ToList();
+            }
+
+            return value.GetType().IsPrimitive ? value : value.ToString();
+        }
+
+        private static string GetNameOrTypeName(IEngineeringObject engineeringObject)
+        {
+            try
+            {
+                if (engineeringObject.GetAttribute("Name") is string name)
+                {
+                    return name;
+                }
+            }
+            catch (Exception)
+            {
+                // the object has no Name attribute
+            }
+
+            return engineeringObject.GetType().Name;
         }
 
         /// <summary>
